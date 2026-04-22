@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Habit Tracker 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #F4F2ED;
+  --surface: #FFFFFF;
+  --surface2: #EEEBE4;
+  --border: #E0DCD4;
+  --border-strong: #C5BFB5;
+  --text: #1A1714;
+  --text-muted: #7A7469;
+  --text-hint: #ABA49B;
+  --accent: #2D6A4F;
+  --accent-light: #E8F4EE;
+  --accent-mid: #52B788;
+  --accent-dark: #1B4332;
+  --amber: #B5541A;
+  --amber-light: #FDF0E6;
+  --radius: 14px;
+  --radius-sm: 9px;
+}
+
+html, body { height: 100%; overflow-x: hidden; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+/* ── AUTH SCREEN ── */
+#authScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px 24px;
+}
+
+.auth-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.auth-logo em { font-style: italic; color: var(--accent); }
+
+.auth-sub {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-hint);
+  margin-bottom: 28px;
+  font-family: 'DM Mono', monospace;
+}
+
+.auth-tabs {
+  display: flex;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 22px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 9px;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.18s;
+}
+
+.auth-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.auth-field {
+  margin-bottom: 12px;
+}
+
+.auth-field label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.auth-input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.auth-input:focus { border-color: var(--accent); }
+
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  margin-top: 4px;
+}
+
+.auth-btn:active { opacity: 0.8; }
+.auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.auth-btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-divider span {
+  font-size: 0.7rem;
+  color: var(--text-hint);
+  font-weight: 500;
+}
+
+.auth-btn.google {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.google-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.auth-error {
+  background: var(--amber-light);
+  border: 1px solid #E8C4A8;
+  color: var(--amber);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  margin-top: 12px;
+  display: none;
+}
+
+.auth-error.show { display: block; }
+
+.auth-success {
+  background: var(--accent-light);
+  border: 1px solid #B7DFC8;
+  color: var(--accent-dark);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  margin-top: 12px;
+  display: none;
+}
+
+.auth-success.show { display: block; }
+
+/* ── CONFIG BANNER ── */
+#configBanner {
+  background: var(--amber-light);
+  border-bottom: 1px solid #E8C4A8;
+  padding: 10px 18px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--amber);
+  display: none;
+}
+
+#configBanner.show { display: block; }
+
+/* ── APP SCREEN ── */
+#appScreen { display: none; }
+#appScreen.show { display: block; }
+
+/* ── STICKY TOP BAR ── */
+.top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: env(safe-area-inset-top, 0) 0 0;
+}
+
+.top-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 12px;
+}
+
+.top-bar h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.top-bar h1 em { font-style: italic; color: var(--accent); }
+
+/* User menu */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+}
+
+.logout-btn {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-hint);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.15s;
+}
+
+.logout-btn:active { background: var(--surface2); }
+
+/* Month swiper */
+.month-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0 18px 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.month-strip::-webkit-scrollbar { display: none; }
+
+.month-pill {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 5px 13px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+  font-family: 'Outfit', sans-serif;
+}
+
+.month-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ── STAT STRIP ── */
+.stats-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 16px 18px 4px;
+  -webkit-overflow-scrolling: touch;
+}
+.stats-scroll::-webkit-scrollbar { display: none; }
+
+.stat-pill {
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  min-width: 110px;
+  text-align: center;
+}
+
+.stat-pill .s-label {
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-hint);
+  margin-bottom: 3px;
+}
+
+.stat-pill .s-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1;
+}
+
+.stat-pill .s-bar {
+  margin-top: 6px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.stat-pill .s-bar-fill {
+  height: 100%;
+  background: var(--accent-mid);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+/* ── DAY CARDS ── */
+.days-list {
+  padding: 14px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.day-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.day-card.is-today { border: 2px solid var(--accent); }
+.day-card.is-weekend .card-head { background: #FDFAF5; }
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-date .day-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 28px;
+}
+
+.card-date .day-name { font-size: 0.78rem; color: var(--text-muted); font-weight: 400; }
+
+.today-badge {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.card-right { display: flex; align-items: center; gap: 10px; }
+
+.dot-row { display: flex; gap: 4px; }
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background 0.2s;
+}
+
+.dot.filled { background: var(--accent-mid); }
+
+.score-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  min-width: 28px;
+  text-align: right;
+}
+
+.score-badge.perfect { color: var(--accent); font-weight: 600; }
+
+.chevron { font-size: 0.7rem; color: var(--text-hint); transition: transform 0.22s; }
+
+.card-body { display: none; padding: 4px 0 8px; }
+.card-body.open { display: block; }
+
+.habit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.habit-row:last-child { border-bottom: none; }
+.habit-row:active { background: var(--surface2); }
+
+.habit-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--text);
+  flex: 1;
+}
+
+.habit-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+
+.habit-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.habit-toggle:checked { background: var(--accent); border-color: var(--accent); }
+
+.habit-toggle:checked::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 8px;
+  width: 8px; height: 13px;
+  border: 2.5px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+
+/* Saving indicator on checkbox */
+.habit-toggle.saving { opacity: 0.5; pointer-events: none; }
+
+/* ── BOTTOM SUMMARY BAR ── */
+.bottom-summary {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 12px 18px env(safe-area-inset-bottom, 12px);
+}
+
+.summary-row-flex { display: flex; gap: 10px; }
+
+.summary-item { flex: 1; text-align: center; }
+
+.summary-item .si-label {
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-hint);
+  margin-bottom: 2px;
+}
+
+.summary-item .si-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.summary-item .si-val.accent { color: var(--accent); }
+
+/* ── MOTIVATION CARD ── */
+.motivation-card {
+  margin: 14px 14px 0;
+  background: var(--accent);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.motivation-card .quote {
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.9);
+  flex: 1;
+  line-height: 1.45;
+}
+
+.motivation-card .streak {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.75);
+  white-space: nowrap;
+  text-align: right;
+  min-width: 60px;
+}
+
+/* ── MONTH PROGRESS BAR ── */
+.month-progress-wrap {
+  margin: 16px 14px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.mp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mp-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.mp-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.mp-bars { display: flex; flex-direction: column; gap: 7px; }
+
+.mp-bar-row { display: flex; align-items: center; gap: 10px; }
+
+.mp-bar-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  width: 88px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mp-bar-track {
+  flex: 1;
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.mp-bar-fill {
+  height: 100%;
+  background: var(--accent-mid);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.mp-bar-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--text-hint);
+  width: 30px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Expand all toggle */
+.expand-btn {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 12px 14px 0;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s;
+}
+
+.expand-btn:active { background: var(--surface2); }
+
+/* ── DATE PICKER ── */
+.date-picker-wrap {
+  margin: 16px 14px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.dp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.dp-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.dp-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.dp-nav button {
+  width: 30px; height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.dp-nav button:active { background: var(--border); }
+
+.dp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.dp-wd {
+  text-align: center;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-hint);
+  padding: 4px 0;
+}
+
+.dp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.dp-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  position: relative;
+  gap: 2px;
+}
+
+.dp-day:active { transform: scale(0.92); }
+.dp-day.empty { cursor: default; pointer-events: none; }
+.dp-day.future { color: var(--text-hint); cursor: default; pointer-events: none; }
+
+.dp-day.has-data::after {
+  content: '';
+  width: 4px; height: 4px;
+  background: var(--accent-mid);
+  border-radius: 50%;
+  position: absolute;
+  bottom: 3px;
+}
+
+.dp-day.perfect::after { background: var(--accent); }
+
+.dp-day.selected {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent-dark);
+}
+
+.dp-day.selected::after { background: rgba(255,255,255,0.6); }
+
+.dp-day.is-today {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.dp-day.is-today.selected { color: #fff; }
+
+.dp-day.weekend { color: var(--text-muted); }
+
+/* ── DAY PANEL ── */
+.day-panel {
+  margin: 14px 14px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.day-panel-head {
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.day-panel-head .dp-date-big {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  font-weight: 400;
+}
+
+.day-panel-head .dp-date-big em { font-style: italic; color: var(--accent); }
+
+.day-panel-head .dp-score-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  border-radius: 99px;
+  padding: 4px 12px;
+}
+
+.day-panel-head .dp-score-pill.perfect {
+  background: var(--accent);
+  color: #fff;
+}
+
+.day-panel-habits .habit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.day-panel-habits .habit-row:last-child { border-bottom: none; }
+.day-panel-habits .habit-row:active { background: var(--surface2); }
+
+.habit-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--text);
+  flex: 1;
+  pointer-events: none;
+}
+
+.habit-icon { font-size: 1.1rem; width: 26px; text-align: center; }
+
+.habit-toggle {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px; height: 28px;
+  border: 2px solid var(--border-strong);
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.habit-toggle:checked { background: var(--accent); border-color: var(--accent); }
+
+.habit-toggle:checked::after {
+  content: '';
+  position: absolute;
+  top: 4px; left: 8px;
+  width: 8px; height: 13px;
+  border: 2.5px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+
+.habit-toggle.saving { opacity: 0.45; pointer-events: none; }
+
+/* ── SUBMIT BUTTON ── */
+.submit-wrap {
+  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 15px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.submit-btn:active { background: var(--accent-dark); transform: scale(0.98); }
+.submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.submit-btn.success { background: #1a7a4a; }
+
+.submit-feedback {
+  padding: 0 16px 12px;
+  font-size: 0.78rem;
+  color: var(--accent);
+  text-align: center;
+  min-height: 0;
+  transition: all 0.2s;
+}
+
+.submit-feedback.err { color: var(--amber); }
+
+/* Loading overlay */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+  gap: 12px;
+}
+
+.loading-overlay.hidden { display: none; }
+
+.loading-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-size: 0.8rem;
+  color: var(--text-hint);
+  font-family: 'DM Mono', monospace;
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOADING OVERLAY ══ -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Loading…</div>
+</div>
+
+<!-- ══ AUTH SCREEN ══ -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">Habit <em>Tracker</em> '26</div>
+    <div class="auth-sub">track · build · grow</div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')" id="tabLogin">Sign In</button>
+      <button class="auth-tab" onclick="switchTab('signup')" id="tabSignup">Sign Up</button>
+    </div>
+
+    <div id="loginForm">
+      <div class="auth-field">
+        <label>Email</label>
+        <input class="auth-input" type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input class="auth-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="auth-btn primary" onclick="handleEmailLogin()" id="loginBtn">Sign In</button>
+    </div>
+
+    <div id="signupForm" style="display:none">
+      <div class="auth-field">
+        <label>Email</label>
+        <input class="auth-input" type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="auth-field">
+        <label>Password</label>
+        <input class="auth-input" type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+      </div>
+      <button class="auth-btn primary" onclick="handleEmailSignup()" id="signupBtn">Create Account</button>
+    </div>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <button class="auth-btn google" onclick="handleGoogleLogin()">
+      <svg class="google-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-success" id="authSuccess"></div>
+  </div>
+</div>
+
+<!-- ══ APP SCREEN ══ -->
+<div id="appScreen">
+
+  <!-- CONFIG BANNER -->
+  <div id="configBanner">
+    ⚠️ Supabase not configured — open the HTML and set your SUPABASE_URL and SUPABASE_ANON_KEY
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-bar-inner">
+      <h1>Habit <em>Tracker</em> '26</h1>
+      <div class="user-menu">
+        <div class="logout-btn" style="font-size:0.7rem;color:var(--text-muted);font-family:'DM Mono',monospace;border:none;padding:0;" id="todayLabel"></div>
+        <div class="user-avatar" id="userAvatar" title="Logged in">?</div>
+        <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+      </div>
+    </div>
+    <div class="month-strip" id="monthStrip"></div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-scroll" id="statsScroll"></div>
+
+  <!-- MOTIVATION -->
+  <div class="motivation-card" id="motivationCard">
+    <span class="quote" id="quoteText"></span>
+    <span class="streak" id="streakText"></span>
+  </div>
+
+  <!-- PER-HABIT PROGRESS -->
+  <div class="month-progress-wrap" id="progressWrap"></div>
+
+  <!-- DATE PICKER -->
+  <div class="date-picker-wrap" id="datePickerWrap"></div>
+
+  <!-- SELECTED DAY PANEL -->
+  <div class="day-panel" id="dayPanel" style="display:none">
+    <div class="day-panel-head" id="dayPanelHead"></div>
+    <div class="day-panel-habits" id="dayPanelHabits"></div>
+    <!-- SUBMIT BUTTON (hidden until a checkbox is ticked) -->
+    <div class="submit-wrap" id="submitWrap" style="display:none">
+      <button class="submit-btn" id="submitBtn" onclick="submitDay()">
+        <span id="submitBtnText">Save Today's Habits</span>
+      </button>
+    </div>
+    <div class="submit-feedback" id="submitFeedback"></div>
+  </div>
+
+  <!-- BOTTOM SUMMARY -->
+  <div class="bottom-summary">
+    <div class="summary-row-flex" id="summaryBar"></div>
+  </div>
+
+</div><!-- end appScreen -->
+
+<script>
+/* ══════════════════════════════════════════
+   CONFIGURATION — paste your Supabase values
+   ══════════════════════════════════════════ */
+const SUPABASE_URL      = 'https://vpwgjbhjjcelbcrucvkd.supabase.co';       // e.g. https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwd2dqYmhqamNlbGJjcnVjdmtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4Njg5OTgsImV4cCI6MjA5MjQ0NDk5OH0.WZhufgltLI3lcM154r5-04zhkYoNNgb4hzKaUF0bM-Y';  // long string from Supabase dashboard
+
+/* ══ Init Supabase ══ */
+let sbClient = null;
+let currentUser = null;
+// In-memory cache: key = "y_m_d_habit" → boolean
+let habitCache = {};
+
+function isConfigured() {
+  return true; // credentials are configured
+}
+
+if (isConfigured()) {
+  sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+  document.getElementById('configBanner').classList.add('show');
+}
+
+/* ══ App constants ══ */
+const HABITS = [
+  { key: 'water',    label: 'Water (2–3L)',        icon: '💧' },
+  { key: 'walk',     label: 'Walking / Exercise',  icon: '🚶' },
+  { key: 'meditate', label: 'Meditation',           icon: '🧘' },
+  { key: 'nontech',  label: 'Non-Tech Learning',   icon: '📚' },
+  { key: 'tech',     label: 'Tech Learning',        icon: '💻' },
+  { key: 'family',   label: 'Family Time',          icon: '👨‍👩‍👧' },
+];
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const QUOTES = [
+  '"Small daily improvements lead to staggering long-term results."',
+  '"We are what we repeatedly do. Excellence is not an act, but a habit."',
+  '"The secret of your future is hidden in your daily routine."',
+  '"Motivation gets you started. Habit keeps you going."',
+  '"Success is the sum of small efforts repeated every single day."',
+  '"A good day starts with a good routine."',
+];
+
+const today = new Date();
+let currentMonth = today.getMonth();
+let currentYear  = 2026;
+let allExpanded  = false;
+
+/* ══════════════════════════════════════════
+   AUTH
+   ══════════════════════════════════════════ */
+function switchTab(tab) {
+  document.getElementById('loginForm').style.display   = tab === 'login'  ? 'block' : 'none';
+  document.getElementById('signupForm').style.display  = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('tabLogin').classList.toggle('active',  tab === 'login');
+  document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+  clearAuthMessages();
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('authError');
+  el.textContent = msg;
+  el.classList.add('show');
+  document.getElementById('authSuccess').classList.remove('show');
+}
+
+function showAuthSuccess(msg) {
+  const el = document.getElementById('authSuccess');
+  el.textContent = msg;
+  el.classList.add('show');
+  document.getElementById('authError').classList.remove('show');
+}
+
+function clearAuthMessages() {
+  document.getElementById('authError').classList.remove('show');
+  document.getElementById('authSuccess').classList.remove('show');
+}
+
+async function handleEmailLogin() {
+  if (!sbClient) return alert('Supabase not configured.');
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) return showAuthError('Please fill in all fields.');
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+
+  const { error } = await sbClient.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (error) showAuthError(error.message);
+}
+
+async function handleEmailSignup() {
+  if (!sbClient) return alert('Supabase not configured.');
+  const email    = document.getElementById('signupEmail').value.trim();
+  const password = document.getElementById('signupPassword').value;
+  if (!email || !password) return showAuthError('Please fill in all fields.');
+  if (password.length < 6) return showAuthError('Password must be at least 6 characters.');
+
+  const btn = document.getElementById('signupBtn');
+  btn.disabled = true; btn.textContent = 'Creating account…';
+
+  const { error } = await sbClient.auth.signUp({ email, password });
+  btn.disabled = false; btn.textContent = 'Create Account';
+  if (error) showAuthError(error.message);
+  else showAuthSuccess('Account created! Check your email to confirm, then sign in.');
+}
+
+async function handleGoogleLogin() {
+  if (!sbClient) return alert('Supabase not configured.');
+  const { error } = await sbClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.href }
+  });
+  if (error) showAuthError(error.message);
+}
+
+async function handleLogout() {
+  if (!sbClient) return;
+  await sbClient.auth.signOut();
+  currentUser = null;
+  habitCache  = {};
+  showAuth();
+}
+
+function showAuth() {
+  document.getElementById('authScreen').style.display = 'flex';
+  document.getElementById('appScreen').classList.remove('show');
+}
+
+function showApp(user) {
+  currentUser = user;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('appScreen').classList.add('show');
+
+  // Set avatar initials
+  const email = user.email || '';
+  const initials = email ? email[0].toUpperCase() : '?';
+  document.getElementById('userAvatar').textContent = initials;
+  document.getElementById('userAvatar').title = email;
+
+  renderTodayLabel();
+  loadMonthAndRender();
+}
+
+/* ══════════════════════════════════════════
+   DATA — Supabase read/write
+   ══════════════════════════════════════════ */
+function cacheKey(y, m, d, h) { return `${y}_${m}_${d}_${h}`; }
+
+function getCached(y, m, d, h) {
+  const k = cacheKey(y, m, d, h);
+  return habitCache[k] === true;
+}
+
+function setCached(y, m, d, h, val) {
+  habitCache[cacheKey(y, m, d, h)] = val;
+}
+
+async function loadMonthData(y, m) {
+  if (!sbClient || !currentUser) return;
+  const { data, error } = await sbClient
+    .from('habits')
+    .select('day, habit_key, checked')
+    .eq('user_id', currentUser.id)
+    .eq('year', y)
+    .eq('month', m + 1); // DB stores 1-indexed months
+
+  if (error) { console.error('Load error:', error); return; }
+
+  // Clear month from cache first
+  const days = daysIn(y, m);
+  for (let d = 1; d <= days; d++)
+    HABITS.forEach(h => setCached(y, m, d, h.key, false));
+
+  // Fill from DB
+  (data || []).forEach(row => {
+    setCached(y, m, row.day, row.habit_key, row.checked);
+  });
+}
+
+async function saveHabit(y, m, d, habitKey, checked) {
+  if (!sbClient || !currentUser) return;
+  const { error } = await sbClient.from('habits').upsert({
+    user_id:   currentUser.id,
+    year:      y,
+    month:     m + 1,
+    day:       d,
+    habit_key: habitKey,
+    checked:   checked,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'user_id,year,month,day,habit_key' });
+
+  if (error) console.error('Save error:', error);
+}
+
+/* ══════════════════════════════════════════
+   RENDER HELPERS
+   ══════════════════════════════════════════ */
+function daysIn(y, m)       { return new Date(y, m+1, 0).getDate(); }
+function isToday(y, m, d)   { return today.getFullYear()===y && today.getMonth()===m && today.getDate()===d; }
+
+function getScore(y, m, d) {
+  return HABITS.reduce((s, h) => s + (getCached(y, m, d, h.key) ? 1 : 0), 0);
+}
+
+function renderTodayLabel() {
+  const el = document.getElementById('todayLabel');
+  const d = today;
+  el.textContent = `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)}`;
+}
+
+function renderMonthStrip() {
+  const el = document.getElementById('monthStrip');
+  el.innerHTML = MONTHS.map((name, i) => `
+    <button class="month-pill ${i===currentMonth?'active':''}"
+      onclick="switchMonth(${i})">${name.slice(0,3)}</button>
+  `).join('');
+  setTimeout(() => {
+    const active = el.querySelector('.active');
+    if (active) active.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, 50);
+}
+
+async function switchMonth(m) {
+  if (Object.keys(pendingChanges).length > 0) {
+    if (!confirm('You have unsaved changes. Discard and switch month?')) return;
+  }
+  currentMonth = m;
+  selectedDay = null;
+  pendingChanges = {};
+  document.getElementById('dayPanel').style.display = 'none';
+  showLoadingDays();
+  await loadMonthData(currentYear, currentMonth);
+  renderAll();
+}
+
+function showLoadingDays() {
+  // placeholder while month data loads
+}
+
+function renderStats() {
+  const days   = daysIn(currentYear, currentMonth);
+  const lastDay = (currentYear===today.getFullYear() && currentMonth===today.getMonth()) ? today.getDate() : days;
+  const totals = {};
+  HABITS.forEach(h => totals[h.key] = 0);
+  let done = 0;
+
+  for (let d = 1; d <= lastDay; d++) {
+    HABITS.forEach(h => {
+      if (getCached(currentYear, currentMonth, d, h.key)) { totals[h.key]++; done++; }
+    });
+  }
+
+  const total = lastDay * HABITS.length;
+  const pct   = total > 0 ? Math.round(done/total*100) : 0;
+  const avg   = lastDay > 0 ? (done/lastDay).toFixed(1) : '0.0';
+
+  document.getElementById('statsScroll').innerHTML = `
+    <div class="stat-pill">
+      <div class="s-label">Overall</div>
+      <div class="s-value">${pct}%</div>
+      <div class="s-bar"><div class="s-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="stat-pill">
+      <div class="s-label">Avg/Day</div>
+      <div class="s-value">${avg}</div>
+      <div class="s-bar"><div class="s-bar-fill" style="width:${Math.round(+avg/HABITS.length*100)}%"></div></div>
+    </div>
+    ${HABITS.map(h => {
+      const p = lastDay > 0 ? Math.round(totals[h.key]/lastDay*100) : 0;
+      return `<div class="stat-pill">
+        <div class="s-label">${h.icon} ${h.label.split(' ')[0]}</div>
+        <div class="s-value">${p}%</div>
+        <div class="s-bar"><div class="s-bar-fill" style="width:${p}%"></div></div>
+      </div>`;
+    }).join('')}
+  `;
+
+  document.getElementById('progressWrap').innerHTML = `
+    <div class="mp-header">
+      <span class="mp-title">Monthly Progress</span>
+      <span class="mp-pct">${pct}% complete</span>
+    </div>
+    <div class="mp-bars">
+      ${HABITS.map(h => {
+        const p = lastDay > 0 ? Math.round(totals[h.key]/lastDay*100) : 0;
+        return `<div class="mp-bar-row">
+          <span class="mp-bar-label">${h.icon} ${h.label}</span>
+          <div class="mp-bar-track"><div class="mp-bar-fill" style="width:${p}%"></div></div>
+          <span class="mp-bar-num">${totals[h.key]}/${lastDay}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="summary-item">
+      <div class="si-label">Done Today</div>
+      <div class="si-val accent">${getScore(currentYear, currentMonth, today.getDate())} / ${HABITS.length}</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-label">Month</div>
+      <div class="si-val">${MONTHS[currentMonth].slice(0,3)} '26</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-label">Overall</div>
+      <div class="si-val accent">${pct}%</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-label">Checks</div>
+      <div class="si-val">${done}</div>
+    </div>
+  `;
+}
+
+/* ══════════════════════════════════════════
+   DATE PICKER + SINGLE DAY VIEW
+   ══════════════════════════════════════════ */
+let selectedDay = null;         // currently selected day number
+let pendingChanges = {};        // { habitKey: bool } — unsaved checkbox state
+
+function renderDatePicker() {
+  const wrap = document.getElementById('datePickerWrap');
+  const days = daysIn(currentYear, currentMonth);
+  const firstDow = new Date(currentYear, currentMonth, 1).getDay(); // 0=Sun
+  const todayD = (today.getFullYear()===currentYear && today.getMonth()===currentMonth) ? today.getDate() : null;
+
+  let cells = '';
+  // Empty leading cells
+  for (let i = 0; i < firstDow; i++) cells += `<div class="dp-day empty"></div>`;
+
+  for (let d = 1; d <= days; d++) {
+    const date    = new Date(currentYear, currentMonth, d);
+    const dow     = date.getDay();
+    const isFuture = (currentYear > today.getFullYear()) ||
+                     (currentYear === today.getFullYear() && currentMonth > today.getMonth()) ||
+                     (currentYear === today.getFullYear() && currentMonth === today.getMonth() && d > today.getDate());
+    const score   = getScore(currentYear, currentMonth, d);
+    const hasData = score > 0;
+    const perfect = score === HABITS.length;
+
+    let cls = 'dp-day';
+    if (isFuture)                 cls += ' future';
+    if (dow === 0 || dow === 6)  cls += ' weekend';
+    if (d === todayD)             cls += ' is-today';
+    if (perfect && hasData)       cls += ' perfect';
+    else if (hasData)             cls += ' has-data';
+    if (d === selectedDay)        cls += ' selected';
+
+    cells += `<div class="${cls}" onclick="selectDay(${d})">${d}</div>`;
+  }
+
+  wrap.innerHTML = `
+    <div class="dp-header">
+      <div class="dp-title">${MONTHS[currentMonth]} ${currentYear}</div>
+      <div class="dp-nav">
+        <button onclick="shiftMonth(-1)">‹</button>
+        <button onclick="shiftMonth(1)">›</button>
+      </div>
+    </div>
+    <div class="dp-weekdays">
+      ${['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<div class="dp-wd">${d}</div>`).join('')}
+    </div>
+    <div class="dp-grid">${cells}</div>
+  `;
+}
+
+async function shiftMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+  if (currentMonth > 11) { currentMonth = 0;  currentYear++; }
+  selectedDay = null;
+  pendingChanges = {};
+  document.getElementById('dayPanel').style.display = 'none';
+  document.getElementById('submitWrap').style.display = 'none';
+  renderMonthStrip();
+  renderStats();
+  showLoadingDays();
+  await loadMonthData(currentYear, currentMonth);
+  renderDatePicker();
+  renderStats();
+}
+
+function selectDay(d) {
+  // Warn if unsaved changes exist
+  if (Object.keys(pendingChanges).length > 0) {
+    if (!confirm('You have unsaved changes. Discard and switch day?')) return;
+  }
+  selectedDay = d;
+  pendingChanges = {};
+  renderDatePicker(); // re-render to highlight selected
+  renderDayPanel(d);
+  document.getElementById('submitFeedback').textContent = '';
+  document.getElementById('submitFeedback').className = 'submit-feedback';
+}
+
+function renderDayPanel(d) {
+  const panel = document.getElementById('dayPanel');
+  const head  = document.getElementById('dayPanelHead');
+  const habitsEl = document.getElementById('dayPanelHabits');
+  const submitWrap = document.getElementById('submitWrap');
+
+  panel.style.display = 'block';
+  submitWrap.style.display = 'none';
+
+  const date    = new Date(currentYear, currentMonth, d);
+  const dayName = DAYS[date.getDay()];
+  const tod     = isToday(currentYear, currentMonth, d);
+  const score   = getScore(currentYear, currentMonth, d);
+  const perfect = score === HABITS.length;
+
+  head.innerHTML = `
+    <div class="dp-date-big">
+      ${dayName}, <em>${MONTHS[currentMonth].slice(0,3)} ${d}</em>
+      ${tod ? '<span class="today-badge" style="font-size:0.55rem;margin-left:6px">Today</span>' : ''}
+    </div>
+    <div class="dp-score-pill ${perfect?'perfect':''}">${score}/${HABITS.length}</div>
+  `;
+
+  habitsEl.innerHTML = HABITS.map(h => `
+    <label class="habit-row" onclick="onHabitClick(event, '${h.key}')">
+      <span class="habit-label">
+        <span class="habit-icon">${h.icon}</span>
+        ${h.label}
+      </span>
+      <input type="checkbox" class="habit-toggle"
+        id="hcb-${h.key}"
+        data-habit="${h.key}"
+        ${getCached(currentYear, currentMonth, d, h.key) ? 'checked' : ''}>
+    </label>
+  `).join('');
+
+  // Attach change listeners
+  habitsEl.querySelectorAll('.habit-toggle').forEach(cb => {
+    cb.addEventListener('change', function() {
+      const key = this.dataset.habit;
+      const originalVal = getCached(currentYear, currentMonth, d, key);
+      if (this.checked !== originalVal) {
+        pendingChanges[key] = this.checked;
+      } else {
+        delete pendingChanges[key];
+      }
+      updateDayPanelScore(d);
+      showSubmitIfNeeded();
+    });
+  });
+
+  // Scroll panel into view
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+}
+
+function onHabitClick(e, key) {
+  // label click is handled natively by checkbox, just stop double-fire
+}
+
+function updateDayPanelScore(d) {
+  // Count current checked state (original + pending)
+  let score = 0;
+  HABITS.forEach(h => {
+    const cb = document.getElementById(`hcb-${h.key}`);
+    if (cb && cb.checked) score++;
+  });
+  const perfect = score === HABITS.length;
+  const pill = document.querySelector('.dp-score-pill');
+  if (pill) {
+    pill.textContent = `${score}/${HABITS.length}`;
+    pill.className = `dp-score-pill${perfect?' perfect':''}`;
+  }
+}
+
+function showSubmitIfNeeded() {
+  const wrap = document.getElementById('submitWrap');
+  const hasPending = Object.keys(pendingChanges).length > 0;
+  wrap.style.display = hasPending ? 'block' : 'none';
+  if (hasPending) {
+    const count = Object.values(pendingChanges).filter(Boolean).length;
+    document.getElementById('submitBtnText').textContent =
+      `Save ${Object.keys(pendingChanges).length} change${Object.keys(pendingChanges).length>1?'s':''}`;
+  }
+}
+
+async function submitDay() {
+  if (!selectedDay || Object.keys(pendingChanges).length === 0) return;
+
+  const btn = document.getElementById('submitBtn');
+  const feedback = document.getElementById('submitFeedback');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="font-size:1rem">⏳</span> Saving…';
+
+  try {
+    // Save all pending changes
+    for (const [habitKey, checked] of Object.entries(pendingChanges)) {
+      setCached(currentYear, currentMonth, selectedDay, habitKey, checked);
+      await saveHabit(currentYear, currentMonth, selectedDay, habitKey, checked);
+    }
+
+    pendingChanges = {};
+    btn.classList.add('success');
+    btn.innerHTML = '✓ Saved!';
+    feedback.textContent = `Habits saved for ${MONTHS[currentMonth].slice(0,3)} ${selectedDay}`;
+    feedback.className = 'submit-feedback';
+
+    // Refresh UI
+    renderDatePicker();
+    renderStats();
+    updateDayPanelScore(selectedDay);
+
+    setTimeout(() => {
+      document.getElementById('submitWrap').style.display = 'none';
+      btn.disabled = false;
+      btn.classList.remove('success');
+      btn.innerHTML = '<span id="submitBtnText">Save changes</span>';
+    }, 1800);
+
+  } catch(err) {
+    btn.disabled = false;
+    btn.innerHTML = '<span id="submitBtnText">Retry</span>';
+    feedback.textContent = 'Save failed — check connection';
+    feedback.className = 'submit-feedback err';
+    console.error(err);
+  }
+}
+
+function renderMotivation() {
+  const d0 = (currentYear===today.getFullYear() && currentMonth===today.getMonth()) ? today.getDate() : daysIn(currentYear, currentMonth);
+  let streak = 0;
+  for (let d = d0; d >= 1; d--) {
+    if (getScore(currentYear, currentMonth, d) === HABITS.length) streak++; else break;
+  }
+  document.getElementById('quoteText').textContent = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  document.getElementById('streakText').textContent = streak > 0 ? `🔥 ${streak}d` : '';
+}
+
+function renderAll() {
+  renderMonthStrip();
+  renderStats();
+  renderMotivation();
+  renderDatePicker();
+  // Auto-select today if in current month
+  if (currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+    selectDay(today.getDate());
+  }
+}
+
+async function loadMonthAndRender() {
+  await loadMonthData(currentYear, currentMonth);
+  renderAll();
+}
+
+/* ══════════════════════════════════════════
+   BOOTSTRAP
+   ══════════════════════════════════════════ */
+async function boot() {
+  document.getElementById('loadingOverlay').classList.remove('hidden'); // ensure visible
+
+  if (!isConfigured()) {
+    // Demo mode — no Supabase, show auth screen with config warning
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    showAuth();
+    return;
+  }
+
+  // Check for existing session
+  const { data: { session } } = await sbClient.auth.getSession();
+
+  if (session?.user) {
+    await loadMonthData(currentYear, currentMonth);
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    showApp(session.user);
+  } else {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    showAuth();
+  }
+
+  // Listen for auth state changes (login/logout/OAuth redirect)
+  sbClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      habitCache = {};
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+      await loadMonthData(currentYear, currentMonth);
+      document.getElementById('loadingOverlay').classList.add('hidden');
+      showApp(session.user);
+    } else if (event === 'SIGNED_OUT') {
+      showAuth();
+    }
+  });
+}
+
+boot();
+</script>
+</body>
+</html>
