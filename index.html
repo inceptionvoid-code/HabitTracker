@@ -919,6 +919,225 @@ body {
 
 .submit-feedback.err { color: var(--amber); }
 
+/* ── PAGE TABS ── */
+.page-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 18px;
+}
+
+.page-tab {
+  flex: 1;
+  padding: 12px 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.18s;
+  letter-spacing: 0.01em;
+}
+
+.page-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── ANALYTICS ── */
+.analytics-wrap {
+  padding: 14px 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.analytics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.analytics-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.range-tabs {
+  display: flex;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.range-tab {
+  padding: 5px 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.range-tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Chart cards */
+.chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+}
+
+.chart-card-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-sub {
+  font-family: 'DM Mono', monospace;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-hint);
+  font-size: 0.68rem;
+}
+
+.chart-container {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chart-container::-webkit-scrollbar { display: none; }
+
+/* Habit breakdown bars */
+.hb-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.hb-row:last-child { margin-bottom: 0; }
+
+.hb-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 96px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hb-track {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.hb-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+.hb-pct {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--text-hint);
+  width: 34px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Insight cards */
+.insight-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.insight-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  text-align: center;
+}
+
+.insight-card .ic-icon { font-size: 1.4rem; margin-bottom: 4px; }
+
+.insight-card .ic-val {
+  font-family: 'DM Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.insight-card .ic-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-hint);
+  margin-top: 4px;
+}
+
+/* ── FOOTER ── */
+.app-footer {
+  text-align: center;
+  padding: 24px 20px 100px;
+  font-size: 0.7rem;
+  color: var(--text-hint);
+  line-height: 1.6;
+}
+
+.app-footer strong { color: var(--text-muted); font-weight: 600; }
+
+.app-footer a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* Also add footer to auth screen */
+.auth-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.65rem;
+  color: var(--text-hint);
+}
+
+.auth-footer a { color: var(--accent); text-decoration: none; }
+
 /* Loading overlay */
 .loading-overlay {
   position: fixed;
@@ -1009,6 +1228,10 @@ body {
 
     <div class="auth-error" id="authError"></div>
     <div class="auth-success" id="authSuccess"></div>
+    <div class="auth-footer">
+      Developed by <strong>Darshan Jogi</strong> with the help of
+      <a href="https://claude.ai" target="_blank">claude.ai</a>
+    </div>
   </div>
 </div>
 
@@ -1033,37 +1256,86 @@ body {
     <div class="month-strip" id="monthStrip"></div>
   </div>
 
-  <!-- STATS ROW -->
-  <div class="stats-scroll" id="statsScroll"></div>
-
-  <!-- MOTIVATION -->
-  <div class="motivation-card" id="motivationCard">
-    <span class="quote" id="quoteText"></span>
-    <span class="streak" id="streakText"></span>
+  <!-- PAGE TABS -->
+  <div class="page-tabs">
+    <button class="page-tab active" id="tabTrack" onclick="switchPage('track')">📅 Track</button>
+    <button class="page-tab" id="tabAnalytics" onclick="switchPage('analytics')">📊 Analytics</button>
   </div>
 
-  <!-- PER-HABIT PROGRESS -->
-  <div class="month-progress-wrap" id="progressWrap"></div>
+  <!-- ══ TRACK PAGE ══ -->
+  <div id="pageTrack">
+    <!-- STATS ROW -->
+    <div class="stats-scroll" id="statsScroll"></div>
 
-  <!-- DATE PICKER -->
-  <div class="date-picker-wrap" id="datePickerWrap"></div>
-
-  <!-- SELECTED DAY PANEL -->
-  <div class="day-panel" id="dayPanel" style="display:none">
-    <div class="day-panel-head" id="dayPanelHead"></div>
-    <div class="day-panel-habits" id="dayPanelHabits"></div>
-    <!-- SUBMIT BUTTON (hidden until a checkbox is ticked) -->
-    <div class="submit-wrap" id="submitWrap" style="display:none">
-      <button class="submit-btn" id="submitBtn" onclick="submitDay()">
-        <span id="submitBtnText">Save Today's Habits</span>
-      </button>
+    <!-- MOTIVATION -->
+    <div class="motivation-card" id="motivationCard">
+      <span class="quote" id="quoteText"></span>
+      <span class="streak" id="streakText"></span>
     </div>
-    <div class="submit-feedback" id="submitFeedback"></div>
+
+    <!-- PER-HABIT PROGRESS -->
+    <div class="month-progress-wrap" id="progressWrap"></div>
+
+    <!-- DATE PICKER -->
+    <div class="date-picker-wrap" id="datePickerWrap"></div>
+
+    <!-- SELECTED DAY PANEL -->
+    <div class="day-panel" id="dayPanel" style="display:none">
+      <div class="day-panel-head" id="dayPanelHead"></div>
+      <div class="day-panel-habits" id="dayPanelHabits"></div>
+      <div class="submit-wrap" id="submitWrap" style="display:none">
+        <button class="submit-btn" id="submitBtn" onclick="submitDay()">
+          <span id="submitBtnText">Save Today's Habits</span>
+        </button>
+      </div>
+      <div class="submit-feedback" id="submitFeedback"></div>
+    </div>
+  </div>
+
+  <!-- ══ ANALYTICS PAGE ══ -->
+  <div id="pageAnalytics" style="display:none">
+    <div class="analytics-wrap">
+
+      <!-- Range selector -->
+      <div class="analytics-header">
+        <span class="analytics-title">Habit Analytics</span>
+        <div class="range-tabs">
+          <button class="range-tab active" onclick="setRange('week')"  id="rangeWeek">Week</button>
+          <button class="range-tab"        onclick="setRange('month')" id="rangeMonth">Month</button>
+          <button class="range-tab"        onclick="setRange('year')"  id="rangeYear">Year</button>
+        </div>
+      </div>
+
+      <!-- Overall score chart — SVG bar chart -->
+      <div class="chart-card">
+        <div class="chart-card-title">Daily Score <span class="chart-sub" id="chartSubLabel"></span></div>
+        <div class="chart-container" id="scoreChartWrap"></div>
+      </div>
+
+      <!-- Per-habit heatmap / bar -->
+      <div class="chart-card">
+        <div class="chart-card-title">Habit Breakdown</div>
+        <div id="habitBreakdown"></div>
+      </div>
+
+      <!-- Best / streak stats -->
+      <div class="insight-row" id="insightRow"></div>
+
+      <!-- Loading state -->
+      <div id="analyticsLoading" style="display:none;text-align:center;padding:40px;color:var(--text-hint);font-family:'DM Mono',monospace;font-size:0.8rem;">Loading analytics…</div>
+
+    </div>
   </div>
 
   <!-- BOTTOM SUMMARY -->
   <div class="bottom-summary">
     <div class="summary-row-flex" id="summaryBar"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="app-footer">
+    Developed by <strong>Darshan Jogi</strong> with the help of
+    <a href="https://claude.ai" target="_blank">claude.ai</a> ✦
   </div>
 
 </div><!-- end appScreen -->
@@ -1737,6 +2009,247 @@ async function boot() {
 }
 
 boot();
+
+/* ══════════════════════════════════════════
+   PAGE SWITCHING
+   ══════════════════════════════════════════ */
+let currentPage = 'track';
+
+function switchPage(page) {
+  currentPage = page;
+  document.getElementById('pageTrack').style.display     = page === 'track'     ? 'block' : 'none';
+  document.getElementById('pageAnalytics').style.display = page === 'analytics' ? 'block' : 'none';
+  document.getElementById('tabTrack').classList.toggle('active',     page === 'track');
+  document.getElementById('tabAnalytics').classList.toggle('active', page === 'analytics');
+  if (page === 'analytics') renderAnalytics();
+}
+
+/* ══════════════════════════════════════════
+   ANALYTICS ENGINE
+   ══════════════════════════════════════════ */
+let analyticsRange = 'month'; // 'week' | 'month' | 'year'
+
+function setRange(r) {
+  analyticsRange = r;
+  ['week','month','year'].forEach(x => {
+    document.getElementById('range' + x.charAt(0).toUpperCase() + x.slice(1))
+      .classList.toggle('active', x === r);
+  });
+  renderAnalytics();
+}
+
+/* Build date range based on selected range */
+function getDateRange() {
+  const now = new Date();
+  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // today (no time)
+  let start;
+  if (analyticsRange === 'week') {
+    start = new Date(end); start.setDate(end.getDate() - 6);
+  } else if (analyticsRange === 'month') {
+    start = new Date(end.getFullYear(), end.getMonth(), 1);
+  } else { // year
+    start = new Date(end.getFullYear(), 0, 1);
+  }
+  return { start, end };
+}
+
+function fmtDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function datesBetween(start, end) {
+  const dates = [];
+  const cur = new Date(start);
+  while (cur <= end) {
+    dates.push(fmtDate(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
+/* Fetch analytics data from DB */
+async function fetchAnalyticsData() {
+  const { start, end } = getDateRange();
+  const { data: logs, error } = await sbClient
+    .from('daily_logs')
+    .select('id, log_date, habit_entries(habit_def_id, checked)')
+    .eq('user_id', currentUser.id)
+    .gte('log_date', fmtDate(start))
+    .lte('log_date', fmtDate(end));
+
+  if (error) { console.error('Analytics fetch error:', error); return null; }
+  return { logs: logs || [], start, end };
+}
+
+/* Main analytics render */
+async function renderAnalytics() {
+  document.getElementById('analyticsLoading').style.display = 'block';
+  document.getElementById('scoreChartWrap').innerHTML = '';
+  document.getElementById('habitBreakdown').innerHTML = '';
+  document.getElementById('insightRow').innerHTML = '';
+
+  const result = await fetchAnalyticsData();
+  document.getElementById('analyticsLoading').style.display = 'none';
+  if (!result) return;
+
+  const { logs, start, end } = result;
+  const allDates = datesBetween(start, end);
+  const totalHabits = HABITS.length;
+
+  // Build map: date → { habitKey → checked }
+  const dateMap = {};
+  allDates.forEach(d => {
+    dateMap[d] = {};
+    HABITS.forEach(h => dateMap[d][h.key] = false);
+  });
+
+  logs.forEach(log => {
+    const d = log.log_date;
+    if (!dateMap[d]) return;
+    (log.habit_entries || []).forEach(entry => {
+      const habitKey = Object.keys(habitDefMap).find(k => habitDefMap[k] === entry.habit_def_id);
+      if (habitKey) dateMap[d][habitKey] = entry.checked;
+    });
+  });
+
+  // ── Score per day ──
+  const scores = allDates.map(d => {
+    const done = HABITS.reduce((s, h) => s + (dateMap[d][h.key] ? 1 : 0), 0);
+    return { date: d, score: done, pct: Math.round(done / totalHabits * 100) };
+  });
+
+  // ── Per-habit totals ──
+  const habitTotals = {};
+  HABITS.forEach(h => { habitTotals[h.key] = 0; });
+  allDates.forEach(d => {
+    HABITS.forEach(h => { if (dateMap[d][h.key]) habitTotals[h.key]++; });
+  });
+
+  const daysWithData = allDates.filter(d => scores.find(s => s.date === d).score > 0).length;
+  const totalDays    = allDates.length;
+  const avgScore     = scores.reduce((s, x) => s + x.pct, 0) / (scores.length || 1);
+
+  // Best streak
+  let bestStreak = 0, curStreak = 0;
+  scores.forEach(s => {
+    if (s.score === totalHabits) { curStreak++; bestStreak = Math.max(bestStreak, curStreak); }
+    else curStreak = 0;
+  });
+
+  // Perfect days
+  const perfectDays = scores.filter(s => s.score === totalHabits).length;
+
+  // ── Update subtitle ──
+  const subLabels = { week: 'last 7 days', month: 'this month', year: 'this year' };
+  document.getElementById('chartSubLabel').textContent = '· ' + subLabels[analyticsRange];
+
+  // ── Render bar chart (SVG) ──
+  renderScoreChart(scores, allDates);
+
+  // ── Render habit breakdown ──
+  renderHabitBreakdown(habitTotals, totalDays);
+
+  // ── Render insight cards ──
+  document.getElementById('insightRow').innerHTML = `
+    <div class="insight-card">
+      <div class="ic-icon">🔥</div>
+      <div class="ic-val">${bestStreak}d</div>
+      <div class="ic-label">Best Streak</div>
+    </div>
+    <div class="insight-card">
+      <div class="ic-icon">⭐</div>
+      <div class="ic-val">${perfectDays}</div>
+      <div class="ic-label">Perfect Days</div>
+    </div>
+    <div class="insight-card">
+      <div class="ic-icon">📈</div>
+      <div class="ic-val">${Math.round(avgScore)}%</div>
+      <div class="ic-label">Avg Score</div>
+    </div>
+    <div class="insight-card">
+      <div class="ic-icon">✅</div>
+      <div class="ic-val">${daysWithData}</div>
+      <div class="ic-label">Active Days</div>
+    </div>
+  `;
+}
+
+/* SVG Bar Chart */
+function renderScoreChart(scores, allDates) {
+  const wrap = document.getElementById('scoreChartWrap');
+  const n    = scores.length;
+  if (n === 0) { wrap.innerHTML = '<div style="color:var(--text-hint);font-size:0.8rem;padding:20px 0;text-align:center">No data yet</div>'; return; }
+
+  const BAR_W  = analyticsRange === 'year' ? 8 : analyticsRange === 'month' ? 11 : 28;
+  const GAP    = analyticsRange === 'year' ? 3 : analyticsRange === 'month' ? 4 : 8;
+  const H      = 100; // chart height px
+  const LABEL_H = 20;
+  const W      = n * (BAR_W + GAP) - GAP;
+  const SVG_H  = H + LABEL_H;
+
+  const COLORS = ['#C8E6D0','#A3D4AE','#74C492','#52B788','#2D9E6B','#1B7A4F'];
+
+  let bars = '';
+  let labels = '';
+
+  scores.forEach((s, i) => {
+    const x    = i * (BAR_W + GAP);
+    const barH = s.pct > 0 ? Math.max(4, Math.round(s.pct / 100 * H)) : 2;
+    const y    = H - barH;
+    const colorIdx = Math.min(5, Math.floor(s.pct / 20));
+    const color = s.pct === 0 ? 'var(--border)' : COLORS[colorIdx];
+
+    bars += `<rect x="${x}" y="${y}" width="${BAR_W}" height="${barH}"
+      rx="3" fill="${color}" opacity="0.9">
+      <title>${s.date}: ${s.score}/${HABITS.length} (${s.pct}%)</title>
+    </rect>`;
+
+    // Labels: for week show day names, for month show every 5th, for year every 30th
+    const d    = new Date(s.date + 'T00:00:00');
+    let lbl    = '';
+    if (analyticsRange === 'week') lbl = DAYS[d.getDay()].slice(0,2);
+    else if (analyticsRange === 'month' && (i === 0 || (i+1) % 5 === 0)) lbl = String(d.getDate());
+    else if (analyticsRange === 'year' && d.getDate() === 1) lbl = MONTHS[d.getMonth()].slice(0,3);
+
+    if (lbl) {
+      labels += `<text x="${x + BAR_W/2}" y="${SVG_H - 3}" text-anchor="middle"
+        font-size="8" fill="var(--text-hint)" font-family="DM Mono,monospace">${lbl}</text>`;
+    }
+  });
+
+  // Grid lines at 25%, 50%, 75%, 100%
+  let grid = '';
+  [25,50,75,100].forEach(p => {
+    const gy = H - Math.round(p/100*H);
+    grid += `<line x1="0" y1="${gy}" x2="${W}" y2="${gy}" stroke="var(--border)" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+    grid += `<text x="${W+4}" y="${gy+3}" font-size="7" fill="var(--text-hint)" font-family="DM Mono,monospace">${p}%</text>`;
+  });
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${W+30} ${SVG_H}" width="${Math.max(W+30, 280)}" height="${SVG_H}"
+         xmlns="http://www.w3.org/2000/svg" style="min-width:${Math.max(W+30,280)}px;display:block">
+      ${grid}${bars}${labels}
+    </svg>`;
+}
+
+/* Habit breakdown horizontal bars */
+function renderHabitBreakdown(habitTotals, totalDays) {
+  const HABIT_COLORS = ['#52B788','#74C492','#2D9E6B','#B5541A','#1B7A4F','#A3D4AE'];
+  const el = document.getElementById('habitBreakdown');
+  if (totalDays === 0) { el.innerHTML = '<div style="color:var(--text-hint);font-size:0.8rem;text-align:center;padding:10px">No data yet</div>'; return; }
+
+  el.innerHTML = HABITS.map((h, i) => {
+    const pct  = Math.round(habitTotals[h.key] / totalDays * 100);
+    const color = HABIT_COLORS[i % HABIT_COLORS.length];
+    return `<div class="hb-row">
+      <span class="hb-label">${h.icon} ${h.label.split(' ')[0]}</span>
+      <div class="hb-track">
+        <div class="hb-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+      <span class="hb-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+}
 </script>
 </body>
 </html>
