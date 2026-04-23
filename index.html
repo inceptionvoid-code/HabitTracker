@@ -1138,6 +1138,98 @@ body {
 
 .auth-footer a { color: var(--accent); text-decoration: none; }
 
+/* Username hint below input */
+.username-hint {
+  font-size: 0.68rem;
+  margin-top: 4px;
+  min-height: 14px;
+  transition: color 0.2s;
+}
+.username-hint.ok  { color: var(--accent); }
+.username-hint.err { color: var(--amber);  }
+
+/* User chip in top bar */
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px 10px 3px 3px;
+  cursor: default;
+}
+
+.user-display-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text);
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Forgot password link */
+.forgot-link {
+  display: block;
+  text-align: right;
+  font-size: 0.72rem;
+  color: var(--accent);
+  margin-top: -6px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-link:hover { text-decoration: underline; }
+
+/* Magic link button */
+.auth-btn.magic {
+  background: var(--surface);
+  border: 1.5px solid var(--border-strong);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 8px;
+}
+
+/* Back button inside sub-views */
+.auth-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  margin-bottom: 18px;
+  width: fit-content;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'Outfit', sans-serif;
+}
+.auth-back:hover { color: var(--text); }
+
+/* Password strength meter */
+.pw-strength {
+  height: 3px;
+  border-radius: 99px;
+  background: var(--border);
+  margin-top: 6px;
+  overflow: hidden;
+}
+.pw-strength-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s, background 0.3s;
+  width: 0%;
+}
+
 /* Loading overlay */
 .loading-overlay {
   position: fixed;
@@ -1185,11 +1277,12 @@ body {
     <div class="auth-logo">Habit <em>Tracker</em> '26</div>
     <div class="auth-sub">track · build · grow</div>
 
-    <div class="auth-tabs">
+    <div class="auth-tabs" id="authTabsBar">
       <button class="auth-tab active" onclick="switchTab('login')" id="tabLogin">Sign In</button>
       <button class="auth-tab" onclick="switchTab('signup')" id="tabSignup">Sign Up</button>
     </div>
 
+    <!-- ── Sign In ── -->
     <div id="loginForm">
       <div class="auth-field">
         <label>Email</label>
@@ -1199,32 +1292,74 @@ body {
         <label>Password</label>
         <input class="auth-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
       </div>
+      <a class="forgot-link" onclick="switchTab('forgot')">Forgot password?</a>
       <button class="auth-btn primary" onclick="handleEmailLogin()" id="loginBtn">Sign In</button>
     </div>
 
+    <!-- ── Sign Up ── -->
     <div id="signupForm" style="display:none">
+      <div class="auth-field">
+        <label>Username</label>
+        <input class="auth-input" type="text" id="signupUsername" placeholder="e.g. darshan_jogi"
+          autocomplete="username" maxlength="32" oninput="validateUsername(this)">
+        <div class="username-hint" id="usernameHint"></div>
+      </div>
       <div class="auth-field">
         <label>Email</label>
         <input class="auth-input" type="email" id="signupEmail" placeholder="you@example.com" autocomplete="email">
       </div>
       <div class="auth-field">
         <label>Password</label>
-        <input class="auth-input" type="password" id="signupPassword" placeholder="Min. 6 characters" autocomplete="new-password">
+        <input class="auth-input" type="password" id="signupPassword" placeholder="Min. 6 characters"
+          autocomplete="new-password" oninput="updatePwStrength(this.value)">
+        <div class="pw-strength"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+      </div>
+      <div class="auth-field">
+        <label>Confirm Password</label>
+        <input class="auth-input" type="password" id="signupPasswordConfirm"
+          placeholder="Repeat password" autocomplete="new-password"
+          oninput="validateConfirmPw()">
+        <div class="username-hint" id="confirmPwHint"></div>
       </div>
       <button class="auth-btn primary" onclick="handleEmailSignup()" id="signupBtn">Create Account</button>
     </div>
 
-    <div class="auth-divider"><span>or</span></div>
+    <!-- ── Forgot Password ── -->
+    <div id="forgotForm" style="display:none">
+      <button class="auth-back" onclick="switchTab('login')">← Back to Sign In</button>
+      <div class="auth-field">
+        <label>Your Email</label>
+        <input class="auth-input" type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <button class="auth-btn primary" onclick="handleForgotPassword()" id="forgotBtn">Send Reset Link</button>
+    </div>
 
-    <button class="auth-btn google" onclick="handleGoogleLogin()">
-      <svg class="google-icon" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Continue with Google
-    </button>
+    <!-- ── Magic Link ── -->
+    <div id="magicForm" style="display:none">
+      <button class="auth-back" onclick="switchTab('login')">← Back to Sign In</button>
+      <div class="auth-field">
+        <label>Your Email</label>
+        <input class="auth-input" type="email" id="magicEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <button class="auth-btn primary" onclick="handleMagicLink()" id="magicBtn">✉ Send Magic Link</button>
+    </div>
+
+    <!-- OR divider + Google + Magic (only shown on login/signup tabs) -->
+    <div id="socialSection">
+      <div class="auth-divider"><span>or</span></div>
+      <button class="auth-btn google" onclick="handleGoogleLogin()">
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Continue with Google
+      </button>
+      <button class="auth-btn magic" onclick="switchTab('magic')">
+        ✉ Sign in with Magic Link
+      </button>
+    </div>
 
     <div class="auth-error" id="authError"></div>
     <div class="auth-success" id="authSuccess"></div>
@@ -1249,7 +1384,10 @@ body {
       <h1>Habit <em>Tracker</em> '26</h1>
       <div class="user-menu">
         <div class="logout-btn" style="font-size:0.7rem;color:var(--text-muted);font-family:'DM Mono',monospace;border:none;padding:0;" id="todayLabel"></div>
-        <div class="user-avatar" id="userAvatar" title="Logged in">?</div>
+        <div class="user-chip" id="userChip">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span class="user-display-name" id="userDisplayName"></span>
+        </div>
         <button class="logout-btn" onclick="handleLogout()">Sign out</button>
       </div>
     </div>
@@ -1393,10 +1531,23 @@ let allExpanded  = false;
    AUTH
    ══════════════════════════════════════════ */
 function switchTab(tab) {
-  document.getElementById('loginForm').style.display   = tab === 'login'  ? 'block' : 'none';
-  document.getElementById('signupForm').style.display  = tab === 'signup' ? 'block' : 'none';
+  // Show/hide forms
+  document.getElementById('loginForm').style.display  = tab === 'login'  ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('forgotForm').style.display = tab === 'forgot' ? 'block' : 'none';
+  document.getElementById('magicForm').style.display  = tab === 'magic'  ? 'block' : 'none';
+
+  // Show social section only on login/signup
+  const showSocial = tab === 'login' || tab === 'signup';
+  document.getElementById('socialSection').style.display = showSocial ? 'block' : 'none';
+
+  // Show/hide tab bar only on login/signup
+  document.getElementById('authTabsBar').style.display = showSocial ? 'flex' : 'none';
+
+  // Active state on tab buttons
   document.getElementById('tabLogin').classList.toggle('active',  tab === 'login');
   document.getElementById('tabSignup').classList.toggle('active', tab === 'signup');
+
   clearAuthMessages();
 }
 
@@ -1433,20 +1584,64 @@ async function handleEmailLogin() {
   if (error) showAuthError(error.message);
 }
 
+function validateUsername(input) {
+  const val  = input.value.trim();
+  const hint = document.getElementById('usernameHint');
+  if (!hint) return;
+  if (val.length === 0) { hint.textContent = ''; hint.className = 'username-hint'; return; }
+  if (val.length < 3)  { hint.textContent = 'Too short (min 3 chars)'; hint.className = 'username-hint err'; return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(val)) { hint.textContent = 'Only letters, numbers, underscore'; hint.className = 'username-hint err'; return; }
+  hint.textContent = '✓ Looks good'; hint.className = 'username-hint ok';
+}
+
+function validateConfirmPw() {
+  const pw   = document.getElementById('signupPassword').value;
+  const pw2  = document.getElementById('signupPasswordConfirm').value;
+  const hint = document.getElementById('confirmPwHint');
+  if (!hint || !pw2) return;
+  if (pw2 === pw) { hint.textContent = '✓ Passwords match'; hint.className = 'username-hint ok'; }
+  else            { hint.textContent = 'Passwords do not match'; hint.className = 'username-hint err'; }
+}
+
 async function handleEmailSignup() {
   if (!sbClient) return alert('Supabase not configured.');
+  const username = document.getElementById('signupUsername').value.trim();
   const email    = document.getElementById('signupEmail').value.trim();
   const password = document.getElementById('signupPassword').value;
-  if (!email || !password) return showAuthError('Please fill in all fields.');
+  const confirm  = document.getElementById('signupPasswordConfirm').value;
+
+  // Validate all fields
+  if (!username) return showAuthError('Please enter a username.');
+  if (!/^[a-zA-Z0-9_]{3,32}$/.test(username))
+    return showAuthError('Username: 3–32 chars, letters/numbers/underscore only.');
+  if (!email)    return showAuthError('Please enter your email.');
+  if (!password) return showAuthError('Please enter a password.');
   if (password.length < 6) return showAuthError('Password must be at least 6 characters.');
+  if (password !== confirm) return showAuthError('Passwords do not match.');
 
   const btn = document.getElementById('signupBtn');
   btn.disabled = true; btn.textContent = 'Creating account…';
 
-  const { error } = await sbClient.auth.signUp({ email, password });
+  // Sign up with Supabase — pass username in user_metadata so ensureProfile picks it up
+  const { data, error } = await sbClient.auth.signUp({
+    email, password,
+    options: { data: { display_name: username } }
+  });
+
   btn.disabled = false; btn.textContent = 'Create Account';
-  if (error) showAuthError(error.message);
-  else showAuthSuccess('Account created! Check your email to confirm, then sign in.');
+
+  if (error) { showAuthError(error.message); return; }
+
+  // If auto-confirmed (no email verification), save profile immediately
+  if (data?.user && !data.user.confirmation_sent_at) {
+    await sbClient.from('profiles').upsert({
+      id: data.user.id,
+      display_name: username,
+      avatar_url: null,
+    }, { onConflict: 'id' });
+  }
+
+  showAuthSuccess('🎉 Account created! Check your email to confirm, then sign in.');
 }
 
 async function handleGoogleLogin() {
@@ -1456,6 +1651,126 @@ async function handleGoogleLogin() {
     options: { redirectTo: window.location.href }
   });
   if (error) showAuthError(error.message);
+}
+
+async function handleForgotPassword() {
+  if (!sbClient) return alert('Supabase not configured.');
+  const email = document.getElementById('forgotEmail').value.trim();
+  if (!email) return showAuthError('Please enter your email address.');
+
+  const btn = document.getElementById('forgotBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  const { error } = await sbClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href,
+  });
+
+  btn.disabled = false; btn.textContent = 'Send Reset Link';
+  if (error) showAuthError(error.message);
+  else showAuthSuccess('✅ Reset link sent! Check your inbox (and spam folder).');
+}
+
+async function handleMagicLink() {
+  if (!sbClient) return alert('Supabase not configured.');
+  const email = document.getElementById('magicEmail').value.trim();
+  if (!email) return showAuthError('Please enter your email address.');
+
+  const btn = document.getElementById('magicBtn');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  const { error } = await sbClient.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href },
+  });
+
+  btn.disabled = false; btn.textContent = '✉ Send Magic Link';
+  if (error) showAuthError(error.message);
+  else showAuthSuccess('✅ Magic link sent! Check your inbox — click it to sign in instantly.');
+}
+
+/* Password strength indicator */
+function updatePwStrength(val) {
+  const fill = document.getElementById('pwStrengthFill');
+  if (!fill) return;
+  let score = 0;
+  if (val.length >= 6)  score++;
+  if (val.length >= 10) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const pct   = Math.round(score / 5 * 100);
+  const color = score <= 1 ? '#E57373' : score <= 3 ? '#FFB74D' : '#52B788';
+  fill.style.width      = pct + '%';
+  fill.style.background = color;
+}
+
+/* Handle password reset redirect — Supabase sends user back with token in URL hash */
+function checkPasswordResetRedirect() {
+  const hash = window.location.hash;
+  if (hash.includes('type=recovery')) {
+    // Show a new password form
+    showResetPasswordPanel();
+  }
+}
+
+function showResetPasswordPanel() {
+  document.getElementById('authTabsBar').style.display    = 'none';
+  document.getElementById('loginForm').style.display     = 'none';
+  document.getElementById('signupForm').style.display    = 'none';
+  document.getElementById('forgotForm').style.display    = 'none';
+  document.getElementById('magicForm').style.display     = 'none';
+  document.getElementById('socialSection').style.display = 'none';
+
+  // Inject reset panel dynamically
+  const card = document.querySelector('.auth-card');
+  let panel = document.getElementById('resetForm');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'resetForm';
+    panel.innerHTML = `
+      <div style="text-align:center;margin-bottom:18px">
+        <div style="font-size:1.8rem">🔐</div>
+        <div style="font-family:'DM Serif Display',serif;font-size:1.1rem;margin-top:6px">Set New Password</div>
+        <div style="font-size:0.75rem;color:var(--text-hint);margin-top:4px">Choose a strong password</div>
+      </div>
+      <div class="auth-field">
+        <label>New Password</label>
+        <input class="auth-input" type="password" id="resetPassword"
+          placeholder="Min. 6 characters" oninput="updatePwStrength(this.value)">
+        <div class="pw-strength"><div class="pw-strength-fill" id="pwStrengthFill"></div></div>
+      </div>
+      <div class="auth-field">
+        <label>Confirm Password</label>
+        <input class="auth-input" type="password" id="resetPasswordConfirm" placeholder="Repeat password">
+      </div>
+      <button class="auth-btn primary" onclick="handleResetPassword()" id="resetBtn" style="margin-top:4px">
+        Update Password
+      </button>
+    `;
+    card.insertBefore(panel, document.getElementById('authError'));
+  }
+  panel.style.display = 'block';
+}
+
+async function handleResetPassword() {
+  const pw  = document.getElementById('resetPassword').value;
+  const pw2 = document.getElementById('resetPasswordConfirm').value;
+  if (!pw || pw.length < 6) return showAuthError('Password must be at least 6 characters.');
+  if (pw !== pw2)           return showAuthError('Passwords do not match.');
+
+  const btn = document.getElementById('resetBtn');
+  btn.disabled = true; btn.textContent = 'Updating…';
+
+  const { error } = await sbClient.auth.updateUser({ password: pw });
+  btn.disabled = false; btn.textContent = 'Update Password';
+
+  if (error) showAuthError(error.message);
+  else {
+    showAuthSuccess('✅ Password updated! Signing you in…');
+    // Clean the URL hash
+    history.replaceState(null, '', window.location.pathname);
+    setTimeout(() => window.location.reload(), 1500);
+  }
 }
 
 async function handleLogout() {
@@ -1472,19 +1787,28 @@ function showAuth() {
   document.getElementById('appScreen').classList.remove('show');
 }
 
+let currentUserDisplayName = '';
+
+function updateUserUI() {
+  const name     = currentUserDisplayName || currentUser?.email?.split('@')[0] || 'User';
+  const initials = name.slice(0,2).toUpperCase();
+  document.getElementById('userAvatar').textContent      = initials;
+  document.getElementById('userDisplayName').textContent = name;
+  document.getElementById('userAvatar').title            = currentUser?.email || name;
+}
+
 function showApp(user) {
   currentUser = user;
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('appScreen').classList.add('show');
 
-  // Set avatar initials
+  // Temporary initials from email until profile loads
   const email = user.email || '';
-  const initials = email ? email[0].toUpperCase() : '?';
-  document.getElementById('userAvatar').textContent = initials;
-  document.getElementById('userAvatar').title = email;
+  document.getElementById('userAvatar').textContent = email ? email[0].toUpperCase() : '?';
+  document.getElementById('userDisplayName').textContent = email.split('@')[0] || '';
 
   renderTodayLabel();
-  // Ensure relational records exist before loading data
+  // Ensure relational records exist — ensureProfile also loads display_name
   ensureProfile(user).then(() =>
     ensureHabitDefs(user).then(() => loadMonthAndRender())
   );
@@ -1503,14 +1827,32 @@ function setCached(y, m, d, h, val) { habitCache[cacheKey(y,m,d,h)] = val; }
 // Maps habit_definition key → DB uuid (loaded once per session)
 let habitDefMap = {};   // { 'water': 'uuid-...', 'walk': 'uuid-...', ... }
 
-/* ── Step 1: Ensure profile row exists ── */
+/* ── Step 1: Ensure profile row exists, and load display_name into memory ── */
 async function ensureProfile(user) {
-  const { error } = await sbClient.from('profiles').upsert({
-    id:           user.id,
-    display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-    avatar_url:   user.user_metadata?.avatar_url || null,
-  }, { onConflict: 'id', ignoreDuplicates: true });
-  if (error) console.warn('Profile upsert:', error.message);
+  // Try to load existing profile first
+  const { data: existing } = await sbClient
+    .from('profiles').select('display_name, avatar_url').eq('id', user.id).single();
+
+  if (existing) {
+    // Profile already exists — just cache the display name
+    currentUserDisplayName = existing.display_name || user.email?.split('@')[0] || 'User';
+  } else {
+    // New user — create profile using metadata set during signUp
+    const name = user.user_metadata?.display_name
+              || user.user_metadata?.full_name
+              || user.email?.split('@')[0]
+              || 'User';
+    currentUserDisplayName = name;
+    const { error } = await sbClient.from('profiles').upsert({
+      id:           user.id,
+      display_name: name,
+      avatar_url:   user.user_metadata?.avatar_url || null,
+    }, { onConflict: 'id' });
+    if (error) console.warn('Profile upsert:', error.message);
+  }
+
+  // Update UI with real name
+  updateUserUI();
 }
 
 /* ── Step 2: Ensure habit_definitions rows exist for this user ── */
@@ -1975,6 +2317,7 @@ async function loadMonthAndRender() {
    ══════════════════════════════════════════ */
 async function boot() {
   document.getElementById('loadingOverlay').classList.remove('hidden'); // ensure visible
+  checkPasswordResetRedirect(); // handle ?type=recovery in URL hash
 
   if (!isConfigured()) {
     // Demo mode — no Supabase, show auth screen with config warning
