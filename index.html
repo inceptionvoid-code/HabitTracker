@@ -1191,6 +1191,7 @@ async function handleLogout() {
   await sbClient.auth.signOut();
   currentUser = null;
   habitCache  = {};
+  habitDefMap = {};
   showAuth();
 }
 
@@ -1211,58 +1212,135 @@ function showApp(user) {
   document.getElementById('userAvatar').title = email;
 
   renderTodayLabel();
-  loadMonthAndRender();
+  // Ensure relational records exist before loading data
+  ensureProfile(user).then(() =>
+    ensureHabitDefs(user).then(() => loadMonthAndRender())
+  );
 }
 
 /* ══════════════════════════════════════════
-   DATA — Supabase read/write
+   DATA — Supabase read/write (Option-1 Schema)
+   Tables: profiles, habit_definitions, daily_logs, habit_entries
    ══════════════════════════════════════════ */
+
+// In-memory cache: "y_m_d_habitKey" → bool
 function cacheKey(y, m, d, h) { return `${y}_${m}_${d}_${h}`; }
+function getCached(y, m, d, h) { return habitCache[cacheKey(y,m,d,h)] === true; }
+function setCached(y, m, d, h, val) { habitCache[cacheKey(y,m,d,h)] = val; }
 
-function getCached(y, m, d, h) {
-  const k = cacheKey(y, m, d, h);
-  return habitCache[k] === true;
+// Maps habit_definition key → DB uuid (loaded once per session)
+let habitDefMap = {};   // { 'water': 'uuid-...', 'walk': 'uuid-...', ... }
+
+/* ── Step 1: Ensure profile row exists ── */
+async function ensureProfile(user) {
+  const { error } = await sbClient.from('profiles').upsert({
+    id:           user.id,
+    display_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+    avatar_url:   user.user_metadata?.avatar_url || null,
+  }, { onConflict: 'id', ignoreDuplicates: true });
+  if (error) console.warn('Profile upsert:', error.message);
 }
 
-function setCached(y, m, d, h, val) {
-  habitCache[cacheKey(y, m, d, h)] = val;
+/* ── Step 2: Ensure habit_definitions rows exist for this user ── */
+async function ensureHabitDefs(user) {
+  // Load existing
+  const { data: existing } = await sbClient
+    .from('habit_definitions')
+    .select('id, habit_key')
+    .eq('user_id', user.id);
+
+  const existingKeys = (existing || []).map(r => r.habit_key);
+
+  // Build map from existing
+  (existing || []).forEach(r => { habitDefMap[r.habit_key] = r.id; });
+
+  // Insert missing habits
+  const missing = HABITS.filter(h => !existingKeys.includes(h.key));
+  if (missing.length > 0) {
+    const rows = missing.map((h, i) => ({
+      user_id:    user.id,
+      habit_key:  h.key,
+      label:      h.label,
+      icon:       h.icon,
+      sort_order: HABITS.findIndex(x => x.key === h.key),
+      is_active:  true,
+    }));
+    const { data: inserted, error } = await sbClient
+      .from('habit_definitions')
+      .insert(rows)
+      .select('id, habit_key');
+    if (error) { console.error('Habit def insert:', error); return; }
+    (inserted || []).forEach(r => { habitDefMap[r.habit_key] = r.id; });
+  }
 }
 
+/* ── Step 3: Load a full month of entries ── */
 async function loadMonthData(y, m) {
   if (!sbClient || !currentUser) return;
-  const { data, error } = await sbClient
-    .from('habits')
-    .select('day, habit_key, checked')
+
+  // Build ISO date range for the month
+  const firstDate = `${y}-${String(m+1).padStart(2,'0')}-01`;
+  const lastDay   = daysIn(y, m);
+  const lastDate  = `${y}-${String(m+1).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+
+  // Fetch daily_logs + their habit_entries for this month
+  const { data: logs, error } = await sbClient
+    .from('daily_logs')
+    .select(`
+      id,
+      log_date,
+      habit_entries ( habit_def_id, checked )
+    `)
     .eq('user_id', currentUser.id)
-    .eq('year', y)
-    .eq('month', m + 1); // DB stores 1-indexed months
+    .gte('log_date', firstDate)
+    .lte('log_date', lastDate);
 
-  if (error) { console.error('Load error:', error); return; }
+  if (error) { console.error('Load month error:', error); return; }
 
-  // Clear month from cache first
-  const days = daysIn(y, m);
-  for (let d = 1; d <= days; d++)
+  // Clear month cache
+  for (let d = 1; d <= lastDay; d++)
     HABITS.forEach(h => setCached(y, m, d, h.key, false));
 
-  // Fill from DB
-  (data || []).forEach(row => {
-    setCached(y, m, row.day, row.habit_key, row.checked);
+  // Fill cache from loaded logs
+  (logs || []).forEach(log => {
+    const d = new Date(log.log_date + 'T00:00:00').getDate();
+    (log.habit_entries || []).forEach(entry => {
+      // Find which habit key this def_id belongs to
+      const habitKey = Object.keys(habitDefMap).find(k => habitDefMap[k] === entry.habit_def_id);
+      if (habitKey) setCached(y, m, d, habitKey, entry.checked);
+    });
   });
 }
 
-async function saveHabit(y, m, d, habitKey, checked) {
-  if (!sbClient || !currentUser) return;
-  const { error } = await sbClient.from('habits').upsert({
-    user_id:   currentUser.id,
-    year:      y,
-    month:     m + 1,
-    day:       d,
-    habit_key: habitKey,
-    checked:   checked,
-    updated_at: new Date().toISOString()
-  }, { onConflict: 'user_id,year,month,day,habit_key' });
+/* ── Step 4: Save all habits for a given day (called on Submit) ── */
+async function saveDayHabits(y, m, d, changesMap) {
+  if (!sbClient || !currentUser) throw new Error('Not authenticated');
 
-  if (error) console.error('Save error:', error);
+  const logDate = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+  // Upsert daily_log — get or create the log row for this date
+  const { data: logRows, error: logErr } = await sbClient
+    .from('daily_logs')
+    .upsert({ user_id: currentUser.id, log_date: logDate },
+             { onConflict: 'user_id,log_date' })
+    .select('id');
+
+  if (logErr) throw logErr;
+  const logId = logRows[0].id;
+
+  // Upsert one habit_entry per changed habit
+  const entries = Object.entries(changesMap).map(([habitKey, checked]) => ({
+    log_id:       logId,
+    habit_def_id: habitDefMap[habitKey],
+    checked:      checked,
+    checked_at:   checked ? new Date().toISOString() : null,
+  }));
+
+  const { error: entryErr } = await sbClient
+    .from('habit_entries')
+    .upsert(entries, { onConflict: 'log_id,habit_def_id' });
+
+  if (entryErr) throw entryErr;
 }
 
 /* ══════════════════════════════════════════
@@ -1560,10 +1638,11 @@ async function submitDay() {
   btn.innerHTML = '<span style="font-size:1rem">⏳</span> Saving…';
 
   try {
-    // Save all pending changes
+    // Save all pending changes in one transaction via saveDayHabits
+    await saveDayHabits(currentYear, currentMonth, selectedDay, pendingChanges);
+    // Update local cache
     for (const [habitKey, checked] of Object.entries(pendingChanges)) {
       setCached(currentYear, currentMonth, selectedDay, habitKey, checked);
-      await saveHabit(currentYear, currentMonth, selectedDay, habitKey, checked);
     }
 
     pendingChanges = {};
@@ -1647,10 +1726,9 @@ async function boot() {
   // Listen for auth state changes (login/logout/OAuth redirect)
   sbClient.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session?.user) {
-      habitCache = {};
+      habitCache  = {};
+      habitDefMap = {};
       document.getElementById('loadingOverlay').classList.remove('hidden');
-      await loadMonthData(currentYear, currentMonth);
-      document.getElementById('loadingOverlay').classList.add('hidden');
       showApp(session.user);
     } else if (event === 'SIGNED_OUT') {
       showAuth();
